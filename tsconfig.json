@@ -1,0 +1,28 @@
+{
+    "include": [
+        "./src/**/*.ts"
+    ],
+    "compilerOptions": {
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "resolveJsonModule": true,
+        "module": "es6",
+        "target": "es2018",
+        "jsx": "react",
+        "allowJs": true,
+        "lib": [
+            "esnext",
+            "dom"
+        ],
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        },
+        "esModuleInterop": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "strict": true
+    }
+}
