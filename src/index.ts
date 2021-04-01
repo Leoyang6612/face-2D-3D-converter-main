@@ -1,4 +1,5 @@
 import m from "mithril";
+import * as tf from "@tensorflow/tfjs"
 
 let myCanvas: HTMLCanvasElement;
 let myButton: HTMLButtonElement;
@@ -103,5 +104,14 @@ const mainBody = m("div",
     ]
 );
 
+const load_model = async (weight_path: string) => {
+    return tf.loadLayersModel(weight_path);
+}
+
 startup();
 takePicture();
+// let weight_path = 'weight/256_256_resfcn256_weight.index'
+let weight_path = 'http://localhost:81/tfjs-models/VGG16/model.json'
+let model = load_model(weight_path);
+model.then((m) => console.log(m));
+// const output = model.predict(input);

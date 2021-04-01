@@ -18,6 +18,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^3.3.0",
     "mithril": "^2.0.4"
   }
 }
