@@ -1,0 +1,71 @@
+<html>
+<body style="display: flex">
+<div>
+<input type="file" style="display: block"/>
+<img class="myImg" style="width: 300px" src="#">
+</div>
+<div>
+<video class="vid2" src="./test2.mp4" style="display: block"  preload="auto"></video>
+<video class="vid1" src="./test.mp4" style="display: none" preload="auto"></video>
+</div>
+<script>
+document.querySelector('.vid2').addEventListener('loadedmetadata', function() {
+  this.currentTime = 0.9;
+}, false);
+let lx = 0;
+let down = false;
+window.addEventListener('load', function() {
+	document.querySelector('input[type="file"]').addEventListener('change', function() {
+		if (this.files && this.files[0]) {
+			var img = document.querySelector('img');
+			img.onload = () => {
+				URL.revokeObjectURL(img.src);  // no longer needed, free memory
+				var vid2 = document.querySelector('.vid2');
+				vid2.play();
+				setTimeout(() => {
+					var vid = document.querySelector('.vid1');
+					let t = 0.1;
+					let c = 0;
+					let d = vid.duration;
+					vid.style.display = '';
+					vid.currentTime = t;
+					vid.addEventListener('pointerdown', (e) => {
+						lx = e.clientX;
+						down = true;
+					});
+					vid.addEventListener('pointerup', (e) => {
+						lx = e.clientX;
+						down = false;
+					});
+					function mod(n, m) {
+						return ((n % m) + m) % m;
+					}
+					vid.addEventListener('pointermove', (e) => {
+						if (!down) return;
+						let dx = e.clientX - lx;
+						lx = e.clientX;
+						t = mod((t + dx * 0.007), d);
+						if (c === 0) {
+							c = 1;
+						}
+					});
+					vid.onseeked = () => {
+						c = 0;
+					}
+					const fn = () => {
+						if (c === 1) {
+							vid.currentTime = t;
+							c = 2;
+						}
+						requestAnimationFrame(fn);
+					}
+					requestAnimationFrame(fn);
+				}, 6000);
+			};
+			img.src = URL.createObjectURL(this.files[0]); // set src to blob url
+		}
+	});
+});
+</script>
+</body>
+</html>

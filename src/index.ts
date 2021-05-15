@@ -1,9 +1,6 @@
 import m from "mithril";
-import * as tf from "@tensorflow/tfjs"
 
 (async () => {
-    tf.setBackend('cpu');
-    
     let myCanvas: HTMLCanvasElement;
     let myButton: HTMLButtonElement;
     let myVideo: HTMLVideoElement;
@@ -14,7 +11,6 @@ import * as tf from "@tensorflow/tfjs"
 
     const startup = () => {
         m.render(document.body, mainBody);
-
         navigator.mediaDevices.getUserMedia({ video: true, audio: false })
             .then(function (stream) {
                 myVideo.srcObject = stream;
@@ -33,8 +29,18 @@ import * as tf from "@tensorflow/tfjs"
             myCanvas.height = height;
             if (context) {
                 context.drawImage(myVideo, 0, 0, width, height);
+                const blob = new Promise<Blob>((resolve, reject) => myCanvas.toBlob(
+                    (x) => x === null ? reject(undefined) : resolve(x)
+                ));
+                blob.then((x) => {
+                    let data = new FormData();
+                    data.append('file', x);
+                    fetch('http://e7825194e746.ngrok.io/upload', {
+                      method: 'POST',
+                      body: data,
+                    })
+                });
             }
-
         } else {
             clearPhoto();
         }
@@ -107,20 +113,11 @@ import * as tf from "@tensorflow/tfjs"
         ]
     );
 
-    const load_model = async (weight_path: string) => {
-        return tf.loadLayersModel(weight_path);
-    }
-
     startup();
     takePicture();
-    // let weight_path = 'weight/256_256_resfcn256_weight.index'
-    let weight_path = './model/model.json';
-    let model = await load_model(weight_path);
-    console.log(model);
     const response = await fetch('./test.png');
     const blob = await response.blob();
     const img = new Image();
-    let imgTensor;
     const canvas = document.createElement('canvas');
     canvas.width = 224;
     canvas.height = 224;
@@ -128,13 +125,5 @@ import * as tf from "@tensorflow/tfjs"
     const ctx = canvas.getContext('2d');
     img.addEventListener('load', () => {
         ctx?.drawImage(img, 0, 0);
-        imgTensor = tf.browser.fromPixels(img).resizeBilinear([224, 224]).reshape([1, 224, 224, 3]);
-        console.log(imgTensor);
-        const result = model.predict(imgTensor);
-        console.log(
-            (Array.isArray(result) ? result
-            : [result]).map((r) => r.array())
-        );
     })
-    img.src = './test.png';
 })();
